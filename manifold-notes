@@ -1,0 +1,72 @@
+Notes on the Smooth_Manifolds package and the definition of diffeomorphism.
+
+\S 4. A chart is an open set C with a structure preserving map \phi to a subset
+E of Euclidean space.
+
+\S 5. A topological manifold M is defined as a set of charts { C_i, \phi_i }.  
+The C_i are all subsets of M so the overlaps are just C_i \cap C_j .
+A particular set of charts A is an atlas (defined in \S 6).
+Usually one requires that \forall x \in M, \exists C_i\in A s.t. x \in C_i.
+But here we just take M = \union_i C_i by definition.
+
+There is no unique atlas on a manifold.  In math, a maximal atlas A is
+one such that there exists no atlas B such that A \subset B.  The
+definition in \S 6.2.1 does not seem to be this.  The maximal atlas is
+said to be unique, but it probably cannot be explicitly constructed.
+
+\S 6. A C^k differentiable manifold M is a topological manifold such that
+the maps \phi_i \circ \phi_j^{-1} are C^k (smooth compatibility).
+
+\S 6.3. A smooth map f : M -> N is one such that
+\forall x\in M, \exists C_i \in A_M, C_j \in A_N s.t. x\in C_i, f(x)\in C_j
+and \phi_j \circ f \circ \phi_i^{-1} is C^k on the intersection of the
+various domains of definition.
+
+This is not quite the definition of diff in \S 6.3 which also assumes
+that f restricted to C_i is a subset of C_j.  This is not true in
+general as one can see by considering the identity map between the two
+atlases A_1 and A_2 for the sphere defined below.  Thus the identity
+map is not smooth in the sense of diff.
+
+Perhaps this can be fixed in a straightforward way by taking the
+intersection of C_i with the preimage of C_j under f and only checking
+the C^k condition there.  Another way to fix the problem is to define
+the maximal refinement R(A) of an atlas to consist of all subsets of
+the C_i with the restrictions of the \phi_i.  Then instead of A_1 and
+A_2 we consider R(A_1) and R(A_2).  Perhaps one of these solutions are
+implemented in the later definitions, but I didn't see it.
+
+\S 6.5. Two manifolds M and N are diffeomorphic if there exist smooth maps
+f:M -> N and g: N->M s.t. f\circ g=g\circ f = identity.
+
+\S 11. Definition of a sphere S^d whose atlas A_1 has two charts,
+U_+ = stereographic projection of S^d - (south pole)
+U_- = stereographic projection of S^d - (north pole).
+
+Candidate definition of a hypersurface f=0 in R^n :
+for each point x\in R^n with f(x)=0, decompose the tangent space to x
+(isomorphic to R^n) into orthogonal subspaces \lambda(grad f) \oplus V.
+The implicit function theorem then gives us a map u_x from a ball in V
+to \lambda(grad f) such that f( u_x v \oplus v )=0.
+We use this to produce a chart (U_x,\phi_x) with 
+\phi_x^{-1} (v) = u_x v \oplus v.
+
+We can now define S^d as a hypersurface 1 = \sum_i=1^{d+1} x_i^2 in
+R^{d+1}.  Let A_2 be the atlas obtained by the construction above.  It
+has a chart for every point x, in which U_x is the projection of the
+hemisphere centered on x.
+
+To test this definition we want to prove that it is diffeomorphic to
+the A_1 definition.  Suppose we work with R(A_1) and R(A_2) as above,
+we need to show that there exist C_i's and C_j's as in the definitions
+above.  Since the carrier sets are isomorphic, this amounts to showing
+that for each x \in S^d there are C_i\in R(A_1) and C_j\in R(A_2) both
+containing x.  This is manifest for A_2, while for A_1 we can take the
+preimage of a small ball.  So this should be doable.
+
+
+Subsequent goals:
+
+Define group action on a manifold (Kirillov chapter 2).
+
+Define the exponential map (Kirillov chapter 3).
