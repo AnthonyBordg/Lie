@@ -197,7 +197,7 @@ lemma (in rescaling) st_proj2_inv_continuous:
   by transfer (auto intro!: continuous_intros simp: add_nonneg_eq_0_iff)
 
 lemma (in rescaling) st_proj2_continuous:
-  "continuous_on (UNIV -{bot_sphere}) st_proj2"
+  "continuous_on (-{bot_sphere}) st_proj2"
   apply (transfer; auto intro!: continuous_intros simp: add_nonneg_eq_0_iff split_beta' norm_prod_def)
 proof -
   fix a b assume asm0: "sqrt((norm a)^2 + b^2) = R" and asm1: "R + b = 0"
@@ -231,36 +231,38 @@ proof (clarsimp, rule conjI)
     apply (auto simp: S_def divide_simps \<open>b \<noteq> -R\<close> na)
       apply (auto simp: power2_eq_square algebra_simps \<open>b \<noteq> -R\<close> \<open>R + b \<noteq> 0\<close> \<open>2*R + b * 2 \<noteq> 0\<close>)
     using \<open>b \<noteq> -R\<close> apply auto[3] sorry
-  then show "(R - (inverse \<bar>R + b\<bar> * norm a)\<^sup>2) / ((inverse \<bar>R + b\<bar> * norm a)\<^sup>2 + R) = b"
-    by (simp add: S_def)
-  have "R = (2 / (R + b) / (S\<^sup>2 + R^2))"
-    by (auto simp: S_def divide_simps \<open>b \<noteq> -R\<close> na)
-       (auto simp: power2_eq_square algebra_simps \<open>b \<noteq> -R\<close> \<open>R + b \<noteq> 0\<close> \<open>2*R + b * 2 \<noteq> 0\<close>)
-  then have "a = (2 / (R + b) / (S\<^sup>2 + R^2)) *\<^sub>R a"
-    by simp 
-  then show "(2 * inverse (R + b) / ((inverse \<bar>R + b\<bar> * norm a)\<^sup>2 + R^2)) *\<^sub>R a = a"
-    by (auto simp: S_def divide_simps)
+  then show "(R * C\<^sup>2 - R * (\<bar>inverse (R + b) * C\<bar> * norm a)\<^sup>2) / ((\<bar>inverse (R + b) * C\<bar> * norm a)\<^sup>2 + C\<^sup>2) = b" sorry
+  have "R = (2 / (R + b) / (S\<^sup>2 + R^2))" sorry
+    (*apply (auto simp: S_def divide_simps \<open>b \<noteq> -R\<close> na)
+      apply (auto simp: power2_eq_square algebra_simps \<open>b \<noteq> -R\<close> \<open>R + b \<noteq> 0\<close> \<open>2*R + b * 2 \<noteq> 0\<close>)
+    using \<open>R + b \<noteq> 0\<close> apply linarith*)
+  then have "a = (2 / (R + b) / (S\<^sup>2 + R^2)) *\<^sub>R a" sorry 
+  then show "(4 * C * (inverse (R + b) * C) / ((\<bar>inverse (R + b) * C\<bar> * norm a)\<^sup>2 + C\<^sup>2)) *\<^sub>R a = a"
+    apply (auto simp: S_def divide_simps)
+    by (metis \<open>R = R / (R + b) / (S\<^sup>2 + R\<^sup>2)\<close> \<open>a = (R / (R + b) / (S\<^sup>2 + R\<^sup>2)) *\<^sub>R a\<close> add_cancel_right_right scaleR_2 scale_zero_right)
 qed
 
 lemma (in rescaling) st_proj2_inv_inv: "st_proj2 (st_proj2_inv x) = x"
-  by transfer (auto simp: divide_simps add_nonneg_eq_0_iff)
+  apply transfer 
+  apply (auto simp: divide_simps add_nonneg_eq_0_iff)
+  by (simp add: power2_eq_square)
 
 lemma (in rescaling) st_proj2_inv_ne_top: "st_proj2_inv xa \<noteq> bot_sphere"
   by transfer (auto simp: divide_simps add_nonneg_eq_0_iff)
 
-lemma (in rescaling) homeomorphism_st_proj2: "homeomorphism (UNIV - {bot_sphere}) UNIV st_proj2 st_proj2_inv"
-  apply (auto simp: homeomorphism_def st_proj2_continuous st_proj2_inv_continuous st_proj2_inv_inv
-      st_proj2_inv_def st_proj2_inv_ne_top)
+lemma (in rescaling) homeomorphism_st_proj2: "homeomorphism (-{bot_sphere}) UNIV st_proj2 st_proj2_inv"
+ apply (auto simp: homeomorphism_def st_proj2_continuous st_proj2_inv_continuous st_proj2_inv_inv
+      st_proj2_inv st_proj2_inv_ne_top)
   subgoal for x
     by (rule image_eqI[where x="st_proj2_inv x"]) (auto simp: st_proj2_inv_inv st_proj2_inv_ne_top)
-  by (metis rangeI st_proj2_inv_def)
+  by (metis rangeI st_proj2_inv)
 
 lift_definition (in rescaling) st_proj1_chart :: "('a sphere, 'a::euclidean_space) chart"
-  is "(UNIV - {top_sphere::'a sphere}, UNIV::'a set, st_proj1, st_proj1_inv)"
+  is "(-{top_sphere::'a sphere}, UNIV::'a set, st_proj1, st_proj1_inv)"
   using homeomorphism_st_proj1 by blast
   
 lift_definition (in rescaling) st_proj2_chart :: "('a sphere, 'a::euclidean_space) chart"
-  is "(UNIV - {bot_sphere::'a sphere}, UNIV::'a set, st_proj2, st_proj2_inv)"
+  is "(-{bot_sphere::'a sphere}, UNIV::'a set, st_proj2, st_proj2_inv)"
   using homeomorphism_st_proj2 by blast
 
 lemma (in rescaling) st_projs_compat:
@@ -270,28 +272,32 @@ lemma (in rescaling) st_projs_compat:
   apply (transfer; auto)
 proof goal_cases
   case 1
-  have *: "smooth_on ((\<lambda>(x::'a, z). x /\<^sub>R (R - z)) ` (({a. norm a = R} - {(0, R)}) \<inter> ({a. norm a = R} - {(0, - R)})))
-     ((\<lambda>(x, z). x /\<^sub>R (R + z)) \<circ> (\<lambda>x. ((2 / ((norm x)\<^sup>2 + R^2)) *\<^sub>R x, ((norm x)\<^sup>2 - R^2) / ((norm x)\<^sup>2 + R^2))))"
+  have comp:"\<And>a. sqrt (norm a * norm a + 4) = R \<Longrightarrow> a \<noteq> 0 \<Longrightarrow> False"
+    by (metis add.commute add_cancel_right_right mult_eq_0_iff norm_eq_zero real_sqrt_eq_iff real_sqrt_four)
+  have fact: "smooth_on ((\<lambda>(x::'a, z). C *\<^sub>R x /\<^sub>R (R - z)) ` (- {(0, R)} \<inter> {a. norm a = R} \<inter> (- {(0, - R)} \<inter> {a. norm a = R})))
+     ((\<lambda>(x, z). C *\<^sub>R x /\<^sub>R (R + z)) \<circ> (\<lambda>x. ((R * R * C / ((norm x)\<^sup>2 + C\<^sup>2)) *\<^sub>R x, R * ((norm x)\<^sup>2 - C\<^sup>2) / ((norm x)\<^sup>2 + C\<^sup>2))))"
     apply (rule smooth_on_subset[where T="UNIV - {0}"])
     subgoal
       by (auto intro!: smooth_on_divide smooth_on_inverse smooth_on_scaleR smooth_on_mult smooth_on_add
           smooth_on_minus smooth_on_norm simp: o_def power2_eq_square add_nonneg_eq_0_iff divide_simps)
-    apply (auto simp: norm_prod_def power2_eq_square) apply sos
-    done
+    apply (auto simp: norm_prod_def power2_eq_square) using comp by auto
   show ?case
-    by transfer (rule *)
+    by transfer (rule fact)
 next
   case 2
-  have *: "smooth_on ((\<lambda>(x::'a, z). x /\<^sub>R (R + z)) ` (({a. norm a = R} - {(0, R)}) \<inter> ({a. norm a = R} - {(0, - R)})))
-     ((\<lambda>(x, z). x /\<^sub>R (R - z)) \<circ> (\<lambda>x. ((2 / ((norm x)\<^sup>2 + R^2)) *\<^sub>R x, (R^2 - (norm x)\<^sup>2) / ((norm x)\<^sup>2 + R^2))))"
+  have comp:"\<And>a. sqrt (norm a * norm a + 4) = R \<Longrightarrow> a \<noteq> 0 \<Longrightarrow> False"
+    by (metis add.commute add_cancel_right_right mult_eq_0_iff norm_eq_zero real_sqrt_eq_iff real_sqrt_four)
+  have fact: "smooth_on ((\<lambda>(x::'a, z). C *\<^sub>R x /\<^sub>R (R + z)) ` (- {(0, R)} \<inter> {a. norm a = R} \<inter> (- {(0, - R)} \<inter> {a. norm a = R})))
+     ((\<lambda>(x, z). C *\<^sub>R x /\<^sub>R (R - z)) \<circ> (\<lambda>x. ((R * R * C / ((norm x)\<^sup>2 + C\<^sup>2)) *\<^sub>R x, R *\<^sub>R (C\<^sup>2 - (norm x)\<^sup>2) / ((norm x)\<^sup>2 + C\<^sup>2))))"
     apply (rule smooth_on_subset[where T="UNIV - {0}"])
     subgoal
       by (auto intro!: smooth_on_divide smooth_on_inverse smooth_on_scaleR smooth_on_mult smooth_on_add
           smooth_on_minus smooth_on_norm simp: o_def power2_eq_square add_nonneg_eq_0_iff divide_simps)
-    apply (auto simp: norm_prod_def add_eq_0_iff) apply sos
-    done
+    apply (auto simp: norm_prod_def add_eq_0_iff) 
+    using comp apply (metis power2_eq_square)
+    by (metis comp semiring_normalization_rules(29))
   show ?case
-    by transfer (rule *)
+    by transfer (rule fact)
 qed
 
 definition (in rescaling) charts_sphere :: "('a::euclidean_space sphere, 'a) chart set" where
